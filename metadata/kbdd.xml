@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<wayfire>
+    <plugin name="wayfire-kbdd-plugin">
+        <_short>KBDD Plugin</_short>
+        <category>Desktop</category>
+    </plugin>
+</wayfire>
