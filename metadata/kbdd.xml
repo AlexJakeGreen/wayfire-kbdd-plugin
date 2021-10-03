@@ -2,6 +2,6 @@
 <wayfire>
     <plugin name="wayfire-kbdd-plugin">
         <_short>KBDD Plugin</_short>
-        <category>Desktop</category>
+        <category>Utility</category>
     </plugin>
 </wayfire>
