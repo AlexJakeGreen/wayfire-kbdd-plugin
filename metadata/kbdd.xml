@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <wayfire>
-    <plugin name="wayfire-kbdd-plugin">
+    <plugin name="kbdd">
         <_short>KBDD Plugin</_short>
         <category>Utility</category>
     </plugin>
