@@ -68,7 +68,7 @@ void put_layout(int view_id, int layout_id) {
     }
 }
 
-class example_plugin : public wf::plugin_interface_t
+class kbdd_plugin : public wf::plugin_interface_t
 {
     wf::signal_callback_t on_focus_changed = [=] (wf::signal_data_t *data)
     {
@@ -121,4 +121,4 @@ public:
 
 };
 
-DECLARE_WAYFIRE_PLUGIN(example_plugin)
+DECLARE_WAYFIRE_PLUGIN(kbdd_plugin)
