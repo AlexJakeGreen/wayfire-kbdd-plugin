@@ -5,7 +5,7 @@ on a per-window basis.
 
 ## Usage
 
-For automatic start enable the plugin in Wayfire Config Manager or add the string _wayfire-kbdd-plugin_ to the _core.plugins_ list.
+For automatic start enable the plugin in Wayfire Config Manager or add the word _kbdd_ to the _core.plugins_ list.
 
 ## Build and install
 
