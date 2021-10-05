@@ -44,6 +44,18 @@ class kbdd_plugin : public wf::plugin_interface_t
 
     void delete_view_layout(int view_id) {
         views.erase(view_id);
+        if (views.size() == 0) {
+            wlr_seat *seat = wf::get_core().get_current_seat();
+            wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
+            if (!keyboard) {
+                return;
+            }
+            wlr_keyboard_notify_modifiers(keyboard,
+                                          keyboard->modifiers.depressed,
+                                          keyboard->modifiers.latched,
+                                          keyboard->modifiers.locked,
+                                          default_layout_id);
+        }
     };
 
 
