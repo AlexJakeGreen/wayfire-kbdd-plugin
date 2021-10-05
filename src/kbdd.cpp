@@ -8,7 +8,6 @@
 
 class kbdd_plugin : public wf::plugin_interface_t
 {
-
     std::map<int, int> views;
 
     int prev_view_id = -1;
@@ -87,7 +86,6 @@ class kbdd_plugin : public wf::plugin_interface_t
 
 
 public:
-
     void init() override
     {
         output->connect_signal("view-focused", &on_focus_changed);
@@ -99,7 +97,6 @@ public:
         output->disconnect_signal("view-focused", &on_focus_changed);
         output->disconnect_signal("view-pre-unmapped", &on_view_unmapped);
     }
-
 };
 
 DECLARE_WAYFIRE_PLUGIN(kbdd_plugin)
