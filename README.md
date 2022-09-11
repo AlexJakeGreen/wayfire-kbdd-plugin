@@ -14,3 +14,4 @@ meson build
 ninja -C build
 sudo ninja -C build install
 ```
+This will install to `/usr/local/`. To install in `/usr`  you can use  the option: `meson build --prefix=/usr`.
