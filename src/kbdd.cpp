@@ -1,12 +1,14 @@
 #include <map>
 #include <xkbcommon/xkbcommon.h>
 #include <wayfire/plugin.hpp>
-#include <wayfire/output.hpp>
+//#include <wayfire/output.hpp>
+#include <wayfire/per-output-plugin.hpp>
 #include <wayfire/signal-definitions.hpp>
 #include <wayfire/nonstd/wlroots-full.hpp>
+#include <wayfire/util/log.hpp>
 
 
-class kbdd_plugin : public wf::plugin_interface_t
+class kbdd_plugin : public wf::plugin_interface_t, private wf::per_output_tracker_mixin_t<>
 {
     std::map<int, int> views;
 
@@ -58,8 +60,9 @@ class kbdd_plugin : public wf::plugin_interface_t
     };
 
 
-    wf::signal_callback_t on_focus_changed = [=] (wf::signal_data_t *data)
+    wf::signal_connection_t on_focus_changed = [=] (wf::signal_data_t *data)
     {
+        LOGI("==> on_focus_changed");
         wlr_seat *seat = wf::get_core().get_current_seat();
         wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
         if (!keyboard) {
@@ -76,7 +79,8 @@ class kbdd_plugin : public wf::plugin_interface_t
     };
 
 
-    wf::signal_callback_t on_view_unmapped = [=] (wf::signal_data_t *data) {
+    wf::signal_connection_t on_view_unmapped = [=] (wf::signal_data_t *data) {
+        LOGI("==> on_view_unmapped");
         wayfire_view view = get_signaled_view(data);
         int view_id = view->get_id();
         prev_view_id = -1;
@@ -88,14 +92,22 @@ class kbdd_plugin : public wf::plugin_interface_t
 public:
     void init() override
     {
+        this->init_output_tracking();
+    }
+
+    void  handle_new_output(wf::output_t *output) override
+    {
         output->connect_signal("view-focused", &on_focus_changed);
         output->connect_signal("view-pre-unmapped", &on_view_unmapped);
     }
 
-    void fini() override
+    void handle_output_removed(wf::output_t *output) override
     {
-        output->disconnect_signal("view-focused", &on_focus_changed);
-        output->disconnect_signal("view-pre-unmapped", &on_view_unmapped);
+        output->disconnect_signal(&on_focus_changed);
+        output->disconnect_signal(&on_view_unmapped);
+    }
+
+    void fini() override {
     }
 };
 
