@@ -1,28 +1,40 @@
-#include <map>
 #include <xkbcommon/xkbcommon.h>
 #include <wayfire/plugin.hpp>
-#include <wayfire/output.hpp>
 #include <wayfire/signal-definitions.hpp>
 #include <wayfire/nonstd/wlroots-full.hpp>
 
 
+struct view_layout_id : public wf::custom_data_t
+{
+    int layout_id;
+
+    view_layout_id(int id) {
+        this->layout_id = id;
+    };
+
+    virtual ~view_layout_id() = default;
+};
+
+
 class kbdd_plugin : public wf::plugin_interface_t
 {
-    std::map<int, int> views;
 
-    int prev_view_id = -1;
-
+    uint prev_view_id = -1;
     const int default_layout_id = 0;
+    const char *view_layout_id_key = "keyboard-layout-id";
 
 
-    void restore_view_layout(int view_id, wlr_keyboard *keyboard) {
-        int layout_id;
-
-        if (views.find(view_id) == views.end()) {
-            layout_id = default_layout_id;
-        } else {
-            layout_id = views.at(view_id);
+    int get_view_layout(wayfire_view view) {
+        if (view && view->has_data(view_layout_id_key)) {
+            return view->get_data<view_layout_id>(view_layout_id_key)->layout_id;
         }
+
+        return default_layout_id;
+    }
+
+
+    void restore_view_layout(wayfire_view view, wlr_keyboard *keyboard) {
+        int layout_id = get_view_layout(view);
 
         wlr_keyboard_notify_modifiers(keyboard,
                                       keyboard->modifiers.depressed,
@@ -32,70 +44,52 @@ class kbdd_plugin : public wf::plugin_interface_t
     };
 
 
-    void save_prev_view_layout(wlr_keyboard *keyboard) {
-        if (prev_view_id > 0) {
-            int prev_layout_id = xkb_state_serialize_layout(keyboard->xkb_state,
-                                                            XKB_STATE_LAYOUT_LOCKED);
-            views[prev_view_id] = prev_layout_id;
-        }
-    };
+    void save_view_layout(uint view_id, wlr_keyboard *keyboard) {
+        if (view_id > 0) {
+            int layout_id = xkb_state_serialize_layout(keyboard->xkb_state,
+                                                       XKB_STATE_LAYOUT_LOCKED);
 
-
-    void delete_view_layout(int view_id) {
-        views.erase(view_id);
-        if (views.size() == 0) {
-            wlr_seat *seat = wf::get_core().get_current_seat();
-            wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
-            if (!keyboard) {
-                return;
+            for (auto v : wf::get_core().get_all_views()) {
+                if (v->get_id() == view_id) {
+                    v->store_data(std::make_unique<view_layout_id>(layout_id),
+                                  view_layout_id_key);
+                    break;
+                }
             }
-            wlr_keyboard_notify_modifiers(keyboard,
-                                          keyboard->modifiers.depressed,
-                                          keyboard->modifiers.latched,
-                                          keyboard->modifiers.locked,
-                                          default_layout_id);
         }
     };
 
 
-    wf::signal_callback_t on_focus_changed = [=] (wf::signal_data_t *data)
-    {
+    wf::signal_connection_t keyboard_focus_changed = [=] (wf::signal_data_t *data) {
+        wf::keyboard_focus_changed_signal *signal = static_cast<wf::keyboard_focus_changed_signal*>(data);
+        wf::scene::node_ptr focused_node = signal->new_focus;
+        wayfire_view view = wf::node_to_view(focused_node);
+
+        if (!view)
+            return;
+
         wlr_seat *seat = wf::get_core().get_current_seat();
         wlr_keyboard *keyboard = wlr_seat_get_keyboard(seat);
-        if (!keyboard) {
+        if (!keyboard)
             return;
-        }
 
-        save_prev_view_layout(keyboard);
+        save_view_layout(prev_view_id, keyboard);
 
-        wayfire_view view = get_signaled_view(data);
         int view_id = view->get_id();
         prev_view_id = view_id;
 
-        restore_view_layout(view_id, keyboard);
-    };
-
-
-    wf::signal_callback_t on_view_unmapped = [=] (wf::signal_data_t *data) {
-        wayfire_view view = get_signaled_view(data);
-        int view_id = view->get_id();
-        prev_view_id = -1;
-
-        delete_view_layout(view_id);
+        restore_view_layout(view, keyboard);
     };
 
 
 public:
     void init() override
     {
-        output->connect_signal("view-focused", &on_focus_changed);
-        output->connect_signal("view-pre-unmapped", &on_view_unmapped);
+        wf::get_core().connect_signal("keyboard-focus-changed", &keyboard_focus_changed);
     }
 
-    void fini() override
-    {
-        output->disconnect_signal("view-focused", &on_focus_changed);
-        output->disconnect_signal("view-pre-unmapped", &on_view_unmapped);
+    void fini() override {
+        wf::get_core().disconnect_signal(&keyboard_focus_changed);
     }
 };
 
