@@ -60,8 +60,7 @@ class kbdd_plugin : public wf::plugin_interface_t
     };
 
 
-    wf::signal_connection_t keyboard_focus_changed = [=] (wf::signal_data_t *data) {
-        wf::keyboard_focus_changed_signal *signal = static_cast<wf::keyboard_focus_changed_signal*>(data);
+    wf::signal::connection_t<wf::keyboard_focus_changed_signal> keyboard_focus_changed = [=] (wf::keyboard_focus_changed_signal *signal) {
         wf::scene::node_ptr focused_node = signal->new_focus;
         wayfire_view view = wf::node_to_view(focused_node);
 
@@ -85,11 +84,11 @@ class kbdd_plugin : public wf::plugin_interface_t
 public:
     void init() override
     {
-        wf::get_core().connect_signal("keyboard-focus-changed", &keyboard_focus_changed);
+        wf::get_core().connect(&keyboard_focus_changed);
     }
 
     void fini() override {
-        wf::get_core().disconnect_signal(&keyboard_focus_changed);
+        wf::get_core().disconnect(&keyboard_focus_changed);
     }
 };
 
