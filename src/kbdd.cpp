@@ -62,8 +62,7 @@ class kbdd_plugin : public wf::plugin_interface_t
 
     wf::signal_connection_t keyboard_focus_changed = [=] (wf::signal_data_t *data) {
         wf::keyboard_focus_changed_signal *signal = static_cast<wf::keyboard_focus_changed_signal*>(data);
-        wf::scene::node_ptr focused_node = signal->new_focus;
-        wayfire_view view = wf::node_to_view(focused_node);
+        wayfire_view view = signal->view;
 
         if (!view)
             return;
