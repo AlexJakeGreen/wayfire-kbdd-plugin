@@ -16,4 +16,4 @@ sudo ninja -C build install
 ```
 This will install to `/usr/local/`. To install in `/usr`  you can use  the option: `meson build --prefix=/usr`.
 
-For RPI's wayfire version (0.7.5) checkout tag 0.4.5 (`git tag 0.4.5`) before building
+For RPI's wayfire version (0.7.5) checkout tag 0.4.5 (`git checkout 0.4.5`) before building
