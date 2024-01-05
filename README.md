@@ -7,6 +7,8 @@ on a per-window basis.
 
 For automatic start enable the plugin in Wayfire Config Manager or add the word _kbdd_ to the _core.plugins_ list.
 
+The information about current keyboard layout can be exported to a file for use by external layout indicator.
+
 ## Build and install
 
 ```
