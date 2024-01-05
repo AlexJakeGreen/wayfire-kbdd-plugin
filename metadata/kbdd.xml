@@ -2,6 +2,12 @@
 <wayfire>
     <plugin name="kbdd">
         <_short>KBDD Plugin</_short>
+        <_long>Per window keyboard layout plugin.</_long>
         <category>Utility</category>
+        <option name="export_layout_filename" type="string">
+            <_short>File name</_short>
+            <_long>Keyboard layout information will be exported into this file.</_long>
+            <default>/tmp/layout.json</default>
+        </option>
     </plugin>
 </wayfire>
