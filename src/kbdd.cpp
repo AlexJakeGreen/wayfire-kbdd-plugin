@@ -18,10 +18,7 @@ void write_file(int layout_id, const char *layout_name) {
     std::string filename = wf::option_wrapper_t<std::string>("kbdd/export_layout_filename");
     FILE *f = fopen(filename.c_str(), "w");
 
-    char buffer[128];
-    sprintf(buffer, "{\"id\": %d, \"name\": \"%s\", \"code\": \"\%s\"}\n", layout_id, layout_name, layout_code);
-
-    fprintf(f, buffer);
+    fprintf(f, "{\"id\": %d, \"name\": \"%s\", \"code\": \"%s\"}\n", layout_id, layout_name, layout_code);
     fclose(f);
 }
 
