@@ -1,6 +1,7 @@
 #include <xkbcommon/xkbcommon.h>
 #include <wayfire/plugin.hpp>
 #include <wayfire/signal-definitions.hpp>
+#include "wayfire/seat.hpp"
 #include <wayfire/nonstd/wlroots-full.hpp>
 #include "xkb_utils.hpp"
 
